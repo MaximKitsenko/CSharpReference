@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSharpReference
+namespace CSharp7Reference
 {
     class Program
     {
