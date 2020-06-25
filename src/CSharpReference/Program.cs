@@ -6,23 +6,23 @@ namespace CSharpReference
     {
         static void Main(string[] args)
         {
-            var thousand = 1_000;   // numeric literal
-            var binary = 0b0000_0000_0000_0000_0000_1111;   // numeric literal
+            var thousand = 1_000;   // numeric literal 1000 (DEC)
+            var binary = 0b0000_0000_0000_0000_0000_0111;   // numeric literal 15 (DEC)
 
             ParseTwoStrings(
                 "8",
                 "2",
                 "3",
                 "Div",
-                out int var1,
-                out int var2,
-                out _,
-                out CalcOperation operation);    // out variables and discards
+                out int digit1,
+                out var digit2,
+                out _,    // out variables discard
+                out CalcOperation operation);    // out variables
 
             var operationObj = new Operation(operation);
-            operationObj.Execute(var1, var2, 0);
-            var (operationCopy, lastResult) = operationObj;    // deconstructor
-            Console.WriteLine($"last operation: {operationCopy}, last result:{lastResult}");
+            operationObj.Execute(digit1, digit2);
+            var (operationFromDeconstructor, lastResult) = operationObj;    // deconstructor
+            Console.WriteLine($"Last operation: {operationFromDeconstructor}, last result:{lastResult}");
         }
 
         public static void ParseTwoStrings(
@@ -78,27 +78,27 @@ namespace CSharpReference
                 lastResult = _lastResult;
             }
 
-            public double Execute(int operand1, int operand2, int op3)
+            public double Execute(int operand1, int operand2)
             {
-                double r = 0;
-                var operands = (op1: operand1, op2: operand2);
-                var namedOperands = (FirstOperand: operand1, SecondOperand: operand2);    // named tuples;
-                (int someOp1, int someOp2) = GenerateOperandsTuple(operand1, operand2);    // implicitly deconstruction pattern
+                var operationResult = 0D;
+                var srcOperandsBackUp = (FirstOperand: operand1, SecondOperand: operand2);    // named tuples;
+                (double operand1Double, double operand2Double) =
+                    ConvertToDouble(srcOperandsBackUp.Item1, srcOperandsBackUp.SecondOperand);    // implicitly deconstruction pattern
 
                 switch (_operation)
                 {
                     case CalcOperation.Div:
-                        r = Div(operand1, operand2);
+                        operationResult = Div(operand1Double, operand2Double);
                         break;
                 }
 
-                Console.WriteLine($"Operands: {operands.Item1} and {namedOperands.SecondOperand}");
-                return _lastResult = r;
-                int Div(int v1, int v2) => v1 / v2;    //Local methods
+                Console.WriteLine($"Input Operands converted: {srcOperandsBackUp.Item1} => {operand1Double} and {srcOperandsBackUp.SecondOperand} => {operand2Double}");   // ItemN hidden getter
+                return _lastResult = operationResult;
+                double Div(double a, double b) => a / b;    // Local methods
             }
         }
 
-        static (int operand1, int operand2) GenerateOperandsTuple(int operand1, int operand2) => (operand1, operand2);    // return multiple values without resorting to out parameters
+        static (double operand1, double operand2) ConvertToDouble(int operand1, int operand2) => (operand1, operand2);    // return multiple values without resorting to out parameters
 
         public enum CalcOperation
         {
